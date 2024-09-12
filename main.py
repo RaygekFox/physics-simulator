@@ -16,14 +16,17 @@ particles = ["proton", "electron"]
 
 
 
-particle_properties = {(property, particle): 0.0 for property in properties for particle in particles}
-property_forces = {(property, force): [] for property in properties for force in forces}
+particle_properties = {(particle, prop): 0.0 for particle in particles for prop in properties}
+property_forces = {(prop, force): [] for prop in properties for force in forces}
 
 
-particle_properties["proton"]["mass"] = 1.6726219e-27
-particle_properties["proton"]["charge"] = 1.60217663e-19
-particle_properties["electron"]["mass"] = 9.1093837e-31
-particle_properties["electron"]["charge"] = -1.60217663e-19
+particle_properties[("proton", "mass")] = 1.6726219e-27
+particle_properties[("proton", "charge")] = 1.60217663e-19
+particle_properties[("electron", "mass")] = 9.1093837e-31
+particle_properties[("electron", "charge")] = -1.60217663e-19
+
+print(particle_properties[("proton", "mass")] * particle_properties[("electron", "mass")])
+
 
 
 class Particle:
@@ -48,7 +51,7 @@ while True:
             sys.exit()
             
 
-    print(particle_properties)
+    
 
 
 
