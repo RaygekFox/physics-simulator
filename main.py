@@ -1,5 +1,14 @@
 import pygame
 import sys
+import kivy
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.textinput import TextInput
+from kivy.uix.button import Button
+from kivy.uix.label import Label
+from kivy.clock import Clock
+
+
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -17,15 +26,7 @@ particles = ["proton", "electron"]
 
 
 particle_properties = {(particle, prop): 0.0 for particle in particles for prop in properties}
-property_forces = {(prop, force): [] for prop in properties for force in forces}
-
-
-particle_properties[("proton", "mass")] = 1.6726219e-27
-particle_properties[("proton", "charge")] = 1.60217663e-19
-particle_properties[("electron", "mass")] = 9.1093837e-31
-particle_properties[("electron", "charge")] = -1.60217663e-19
-
-print(particle_properties[("proton", "mass")] * particle_properties[("electron", "mass")])
+property_forces = {(prop, force): [] for prop in properties for force in forces} #must be in the following format: [force at distance 0, distance where force is 0]
 
 
 
@@ -36,6 +37,7 @@ class Particle:
         self.y = 0
         self.x_vel = 0
         self.y_vel = 0
+        self.fixed = False
 
 
 
@@ -44,21 +46,24 @@ class Particle:
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Physics Simulator")
 
+
+
+
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-            
-
-    
 
 
 
 
 
-    pygame.display.flip()
-    clock.tick(FPS)
+
+
+pygame.display.flip()
+clock.tick(FPS)
 
 
 

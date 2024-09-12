@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Simulator</title>
+</head>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    canvas {
+        border: 1px solid black;
+        width: 600px;
+        height: 600px;
+    }
+</style>
+
+<body>
+    <canvas id="simulation-canvas" width="600" height="600"></canvas>
+
+
+
+    <script>
+    // Access the canvas element
+    const canvas = document.getElementById('simulation-canvas');
+    const ctx = canvas.getContext('2d');
+
+    // Example: Draw a filled rectangle
+    ctx.fillStyle = 'blue';
+    
+    ctx.arc(200, 150, 50, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Define the arrays
+    let properties = ["mass", "charge"];
+    let forces = ["gravity", "electric"];
+    let particles = ["proton", "electron"];
+
+    // Create particle_properties object
+    let particle_properties = {};
+    for (const particle of particles) {
+        for (const prop of properties) {
+            particle_properties[`${particle},${prop}`] = 0.0;
+        }
+    }
+
+    // Create property_forces object
+    let property_forces = {};
+    for (const prop of properties) {
+        for (const force of forces) {
+            property_forces[`${prop},${force}`] = [0,0]; // force for distance 0, distance where force is 0.
+        }
+    }
+
+    console.log(particle_properties);
+    console.log(property_forces);
+    </script>
+</body>
+</html>
