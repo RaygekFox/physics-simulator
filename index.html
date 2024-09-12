@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="jquery-3.7.1.min.js"></script>
     <title>Physics Simulator</title>
 </head>
 
@@ -11,6 +12,66 @@
         margin: 0;
         padding: 0;
         overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .menu-container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        padding: 20px;
+        border-radius: 10px;
+        background-color: #f0f0f0;
+    }
+
+    .menu-container button {
+        padding: 10px 20px;
+        border-radius: 5px;
+        border: 1px solid black;
+        background-color: #c6c6c6;
+    }
+
+    .menu-container button:hover {
+        background-color: #a6a6a6;
+    }
+
+    .menu-subsection {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .particles-container {
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+        position: fixed;
+        top: 20px;
+        left: 20px;
+    }
+
+    .particles-container.show {
+        display: flex;
+    }
+
+    .particles-container button {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        border: 2px solid black;
+        background-color: #f82828;
+    }
+
+    .particles-container button.active {
+        box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+        background-color: #42ff42;
     }
 
     canvas {
@@ -18,21 +79,68 @@
         width: 600px;
         height: 600px;
     }
+
+
+    .square {
+        width: 100px;
+        height: 100px;
+        background-color: red;
+        display: none;
+    }
 </style>
 
 <body>
+    <div class="menu-container">
+        <div class="menu-subsection">
+            <button id="add-particles">Add particles</button>
+            <button id="show-particles">Show particles</button>
+            <button id="new-particle">New particle</button>
+            <button id="delete-particle">Delete particle</button>
+        </div>
+    </div>
+
+    <div class="menu-container particles-container"></div>
+
     <canvas id="simulation-canvas" width="600" height="600"></canvas>
 
-
-
     <script>
+
+    $(document).ready(function() {
+        
+
+
+        $("#add-particles").click(function() {
+            $(".particles-container").toggleClass('show');
+            $(".particles-container").empty();
+            for (const particle of particles) {
+                $(".particles-container").append(`<button id="button-${particle}">${particle}</button>`);
+                if (particle == active_particle) {
+                    $(`#button-${particle}`).addClass('active');
+                    console.log("active particle: ", particle);
+                }
+            }
+
+        });
+
+        // Use event delegation for dynamically added buttons
+        $(".particles-container").on("click", "button", function() {
+            $(".particles-container button").removeClass('active');
+            $(this).addClass('active');
+            active_particle = $(this).text();
+            console.log("active particle: ", active_particle);
+        });
+
+
+    });
+    
+
+
     // Access the canvas element
     const canvas = document.getElementById('simulation-canvas');
     const ctx = canvas.getContext('2d');
 
-    // Example: Draw a filled rectangle
-    ctx.fillStyle = 'blue';
-    
+
+    ctx.fillStyle = 'blue';    
     ctx.arc(200, 150, 50, 0, Math.PI * 2);
     ctx.fill();
 
@@ -40,6 +148,7 @@
     let properties = ["mass", "charge"];
     let forces = ["gravity", "electric"];
     let particles = ["proton", "electron"];
+    let active_particle = particles[0];
 
     // Create particle_properties object
     let particle_properties = {};
@@ -57,8 +166,8 @@
         }
     }
 
-    console.log(particle_properties);
-    console.log(property_forces);
+
     </script>
+
 </body>
 </html>
