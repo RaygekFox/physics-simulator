@@ -245,8 +245,8 @@
         }
     }
 
-    particle_properties["proton, charge"] = 1.0
-    particle_properties["electron, charge"] = -1.0
+    particle_properties["proton,charge"] = 1.0
+    particle_properties["electron,charge"] = -1.0
 
 
 
@@ -258,7 +258,7 @@
         }
     }
 
-    property_forces["charge,electric"] = [1, 200]
+    property_forces["charge,electric"] = [-1, 200]
 
 
 
@@ -288,18 +288,15 @@
             for (prop of properties) {
                 const force_value = property_forces[`${prop},${force}`]
                 if (r < force_value[1]) {
-                    const force_magnitude = force_value[0] * (force_value[1]-r) / force_value[1]
-                    const acc_magnitude = force_magnitude / p1.props.mass
-                    total_acc[0] += unit_vector[0] * acc_magnitude
-                    total_acc[1] += unit_vector[1] * acc_magnitude
-                }
-                else {
-                    total_acc[0] += 0
-                    total_acc[1] += 0
+                    const force_magnitude = parseFloat((force_value[0] * particle_properties[`${p1.props.name},${prop}`] * particle_properties[`${p2.props.name},${prop}`] * (force_value[1]-r) / force_value[1]).toFixed(4))
+                    console.log("force_magnitude", force_magnitude)
+                    const acc_magnitude = parseFloat((force_magnitude / p1.props.mass).toFixed(4))
+                    total_acc[0] += parseFloat((unit_vector[0] * acc_magnitude).toFixed(4))
+                    total_acc[1] += parseFloat((unit_vector[1] * acc_magnitude).toFixed(4))
                 }
             }
         }
-        return total_acc
+        return total_acc;
     }
 
     function acceleration_from_all_particles_on_particle(p1) {
@@ -323,15 +320,15 @@
 
     function update_velocities() {
         for (const p of canvas_particles) {
-            p.velX += p.accX * dt
-            p.velY += p.accY * dt
+            p.velX = parseFloat((p.velX + p.accX * dt).toFixed(4))
+            p.velY = parseFloat((p.velY + p.accY * dt).toFixed(4))
         }
     }
 
     function update_positions() {
         for (const p of canvas_particles) {
-            p.worldX += p.velX * dt
-            p.worldY += p.velY * dt
+            p.worldX = parseFloat((p.worldX + p.velX * dt).toFixed(2))
+            p.worldY = parseFloat((p.worldY + p.velY * dt).toFixed(2))
         }
     }
 
