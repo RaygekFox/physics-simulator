@@ -103,37 +103,60 @@
 
     <canvas id="simulation-canvas" width="600" height="600"></canvas>
 
+
+
+
+
+
+
+
     <script>
 
-    $(document).ready(function() {
+
+
+    //***MENU***
+
+    //Toggle Add particles menu
+    document.getElementById("add-particles").addEventListener("click", function() {
+        const particlesContainer = document.querySelector(".particles-container");
+        particlesContainer.classList.toggle("show");
+        particlesContainer.innerHTML = "";
         
-
-
-        $("#add-particles").click(function() {
-            $(".particles-container").toggleClass('show');
-            $(".particles-container").empty();
-            for (const particle of particles) {
-                $(".particles-container").append(`<button id="button-${particle}">${particle}</button>`);
-                if (particle == active_particle) {
-                    $(`#button-${particle}`).addClass('active');
-                    console.log("active particle: ", particle);
-                }
+        for (const particle of particles) {
+            const button = document.createElement("button");
+            button.id = `button-${particle}`;
+            button.textContent = particle;
+            
+            if (particle === active_particle) {
+                button.classList.add("active");
+                console.log("active particle: ", particle);
             }
+            
+            particlesContainer.appendChild(button);
+        }
+    });
 
-        });
 
-        // Use event delegation for dynamically added buttons
-        $(".particles-container").on("click", "button", function() {
-            $(".particles-container button").removeClass('active');
-            $(this).addClass('active');
-            active_particle = $(this).text();
+    //Select active particle
+    document.querySelector(".particles-container").addEventListener("click", function(event) {
+        if (event.target.tagName === "BUTTON") {
+            document.querySelectorAll(".particles-container button").forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            active_particle = event.target.textContent;
             console.log("active particle: ", active_particle);
-        });
-
-
+        }
     });
     
 
+
+
+
+
+
+
+
+
+    //***CANVAS***
 
     // Access the canvas element
     const canvas = document.getElementById('simulation-canvas');
@@ -149,10 +172,31 @@
 
     });
 
+    function add_particle_to_canvas_particles(x, y) {
+        canvas_particles.push({type: active_particle, worldX: x, worldY: y, color: 'blue'});
+    }
+
+    function draw_canvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (const particle of canvas_particles) {
+            ctx.fillStyle = particle.color;
+            ctx.arc(particle.x, particle.y, 10, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+
 
     ctx.fillStyle = 'blue';    
     ctx.arc(200, 150, 50, 0, Math.PI * 2);
     ctx.fill();
+
+
+
+
+
+
+    //***PHYSICS***
 
     // Define the arrays
     let properties = ["mass", "charge"];
