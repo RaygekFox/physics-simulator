@@ -125,7 +125,7 @@
         for (const particle of particles) {
             const button = document.createElement("button");
             button.id = `button-${particle}`;
-            button.textContent = particle;
+            button.textContent = particle.name;
             
             if (particle === active_particle) {
                 button.classList.add("active");
@@ -142,7 +142,12 @@
         if (event.target.tagName === "BUTTON") {
             document.querySelectorAll(".particles-container button").forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
-            active_particle = event.target.textContent;
+            for ( const particle of particles) {
+                if (particle.name === event.target.textContent) {
+                    active_particle = particle;
+                }
+            }
+            
             console.log("active particle: ", active_particle);
         }
     });
@@ -158,7 +163,6 @@
 
     //***CANVAS***
 
-    // Access the canvas element
     const canvas = document.getElementById('simulation-canvas');
     const ctx = canvas.getContext('2d');
     let canvas_particles = [];
@@ -167,29 +171,42 @@
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
+    console.log(x)
+    console.log(y)
+    add_particle_to_canvas_particles(x,y)
     
     
 
     });
 
     function add_particle_to_canvas_particles(x, y) {
-        canvas_particles.push({type: active_particle, worldX: x, worldY: y, color: 'blue'});
+        canvas_particles.push({
+            props: active_particle, 
+            worldX: x, 
+            worldY: y, 
+            velX: 0, 
+            velY: 0, 
+            accX: 0, 
+            accY: 0, 
+            fixed: false});
     }
 
     function draw_canvas() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         for (const particle of canvas_particles) {
-            ctx.fillStyle = particle.color;
-            ctx.arc(particle.x, particle.y, 10, 0, Math.PI * 2);
+            ctx.beginPath();
+            ctx.fillStyle = particle.props.color;
+            ctx.arc(particle.worldX, particle.worldY, particle.props.radius, 0, Math.PI * 2);
             ctx.fill();
+            ctx.closePath();
         }
     }
 
 
 
-    ctx.fillStyle = 'blue';    
-    ctx.arc(200, 150, 50, 0, Math.PI * 2);
-    ctx.fill();
+
+
+
 
 
 
@@ -199,18 +216,39 @@
     //***PHYSICS***
 
     // Define the arrays
+
+    
+    const dt = 0.1
+
     let properties = ["mass", "charge"];
     let forces = ["gravity", "electric"];
-    let particles = ["proton", "electron"];
+    let particles = [
+        {name: "proton", 
+        mass: 1, 
+        color: 'red',
+        radius: 10}, 
+
+        {name: "electron", 
+        mass: 1, 
+        color: 'blue',
+        radius: 6}
+    ];
     let active_particle = particles[0];
+
+
 
     // Create particle_properties object
     let particle_properties = {};
     for (const particle of particles) {
         for (const prop of properties) {
-            particle_properties[`${particle},${prop}`] = 0.0;
+            particle_properties[`${particle.name},${prop}`] = 0.0;
         }
     }
+
+    particle_properties["proton, charge"] = 1.0
+    particle_properties["electron, charge"] = -1.0
+
+
 
     // Create property_forces object
     let property_forces = {};
@@ -218,6 +256,101 @@
         for (const force of forces) {
             property_forces[`${prop},${force}`] = [0,0]; // force for distance 0, distance where force is 0.
         }
+    }
+
+    property_forces["charge,electric"] = [1, 200]
+
+
+
+
+    function distance_between_particles(p1, p2) {
+        let r = Math.sqrt(Math.pow((p1.worldX - p2.worldX), 2) + Math.pow((p1.worldY - p2.worldY), 2))
+        return r
+    }
+
+    function vector_from_to(p1, p2) {     
+        let vector = [p2.worldX - p1.worldX, p2.worldY - p1.worldY]
+        return vector
+    }
+
+    function unit_vector_from_to(p1, p2) {
+        let vector = vector_from_to(p1, p2)
+        let r = distance_between_particles(p1, p2)
+        let unit_vector = [vector[0]/r, vector[1]/r]
+        return unit_vector
+    }
+
+    function acceleration_from_another_particles_on_particle(p1, p2) {
+        let total_acc = [0,0]
+        const unit_vector = unit_vector_from_to(p1, p2) 
+        const r = distance_between_particles(p1, p2)
+        for (force of forces) {
+            for (prop of properties) {
+                const force_value = property_forces[`${prop},${force}`]
+                if (r < force_value[1]) {
+                    const force_magnitude = force_value[0] * (force_value[1]-r) / force_value[1]
+                    const acc_magnitude = force_magnitude / p1.props.mass
+                    total_acc[0] += unit_vector[0] * acc_magnitude
+                    total_acc[1] += unit_vector[1] * acc_magnitude
+                }
+                else {
+                    total_acc[0] += 0
+                    total_acc[1] += 0
+                }
+            }
+        }
+        return total_acc
+    }
+
+    function acceleration_from_all_particles_on_particle(p1) {
+        let total_acc = [0,0]
+        for (const p2 of canvas_particles) {
+            if (p1 !== p2) {
+                const acc = acceleration_from_another_particles_on_particle(p1, p2)
+                total_acc[0] += acc[0]
+                total_acc[1] += acc[1]
+            }
+        }
+        return total_acc
+    }
+
+    function update_accelerations() {
+        for (const p of canvas_particles) {
+            p.accX = acceleration_from_all_particles_on_particle(p)[0]
+            p.accY = acceleration_from_all_particles_on_particle(p)[1]
+        }
+    }
+
+    function update_velocities() {
+        for (const p of canvas_particles) {
+            p.velX += p.accX * dt
+            p.velY += p.accY * dt
+        }
+    }
+
+    function update_positions() {
+        for (const p of canvas_particles) {
+            p.worldX += p.velX * dt
+            p.worldY += p.velY * dt
+        }
+    }
+
+    function update_particles() {
+        update_accelerations()
+        update_velocities()
+        update_positions()
+    }
+
+
+
+
+
+
+    //***MAIL LOOP***
+
+    window.onload = function() {
+        setInterval(update_particles, 50)
+        setInterval(draw_canvas, 50)
     }
 
 
