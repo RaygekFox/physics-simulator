@@ -34,7 +34,7 @@
     .menu-container button {
         padding: 10px 20px;
         border-radius: 5px;
-        border: 1px solid black;
+        border: 2px solid rgb(184, 141, 0);
         background-color: #c6c6c6;
     }
 
@@ -98,9 +98,11 @@
         gap: 10px;
         padding: 10px;
         background-color: #caffd1;
+        border: 2px solid rgb(0, 90, 11);
+        border-radius: 10px;
     }
 
-    .particle-icon {
+    .edit-particles-container .particle-icon {
         width: 10px;
         height: 10px;
         border-radius: 50%;
@@ -120,20 +122,34 @@
 
 <body>
     <div class="menu-container">
-        <div class="menu-subsection">
-            <button id="add-particles">Add particles</button>
-            <button id="edit-particles">Edit particles</button>
-        </div>
+        <button id="add-particles">Add particles</button>
+        <button id="edit-particles">Edit particles</button>
+        <button id="edit-particle-properties">Edit properties</button>
+        <button id="edit-particle-forces">Edit forces</button>
     </div>
 
     <div class="menu-container particles-container" id="particles-container"></div>
     <div class="menu-container edit-particles-container" id="edit-particles-container"></div>
+
     <div class="menu-container edit-particles-container" id="new-particle-container">
         <input type="text" id="new-particle-name" placeholder="Particle name">
         <input type="number" id="new-particle-mass" placeholder="Particle mass">
         <input type="color" id="new-particle-color" placeholder="Particle color">
         <input type="number" id="new-particle-radius" placeholder="Particle radius">
         <button id="create-new-particle">Create new particle</button>
+    </div>
+
+    <div class="menu-container edit-particles-container" id="edit-particle-properties-container">
+        <select id="particle-select">
+            <option value="">Select a particle</option>
+            <!-- Options will be populated dynamically -->
+        </select>
+        <select id="property-select">
+            <option value="">Select a property</option>
+            <!-- Options will be populated dynamically -->
+        </select>
+        <input type="number" id="property-value" placeholder="Enter value">
+        <button id="update-particle-property">Update Property</button>
     </div>
 
     <canvas id="simulation-canvas" width="600" height="600"></canvas>
@@ -397,6 +413,9 @@
         new_particle_button.id = "new-particle-button";
         new_particle_button.textContent = "New particle";
         editParticlesContainer.appendChild(new_particle_button);
+
+        const new_particle_container = document.getElementById("new-particle-container");
+        new_particle_container.classList.remove("show");
     });
 
     //Toggle New particle menu
@@ -440,6 +459,12 @@
                 alert("Please fill all fields with valid values.");
             }
         }
+    });
+
+    //Toggle Edit particle properties menu
+    document.getElementById("edit-particle-properties").addEventListener("click", function() {
+        const editParticlePropertiesContainer = document.getElementById("edit-particle-properties-container");
+        editParticlePropertiesContainer.classList.toggle("show");
     });
 
     //Select active particle
