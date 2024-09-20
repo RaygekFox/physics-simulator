@@ -142,11 +142,9 @@
     <div class="menu-container edit-particles-container" id="edit-particle-properties-container">
         <select id="particle-select">
             <option value="">Select a particle</option>
-            <!-- Options will be populated dynamically -->
         </select>
         <select id="property-select">
             <option value="">Select a property</option>
-            <!-- Options will be populated dynamically -->
         </select>
         <input type="number" id="property-value" placeholder="Enter value">
         <button id="update-particle-property">Update Property</button>
@@ -222,8 +220,7 @@
 
 
 
-
-    //***PHYSICS***
+//***PHYSICS***
 
     // Define the arrays
 
@@ -304,6 +301,7 @@
                     total_acc[0] += parseFloat((unit_vector[0] * acc_magnitude).toFixed(4))
                     total_acc[1] += parseFloat((unit_vector[1] * acc_magnitude).toFixed(4))
                 }
+
             }
         }
         return total_acc;
@@ -442,6 +440,9 @@
                     radius: radius
                 };
                 particles.push(newParticle);
+                for (const prop of properties) {
+                    particle_properties[`${name},${prop}`] = 0.0;
+                }
                 console.log("New particle created:", newParticle);
                 
                 // Clear input fields
@@ -461,10 +462,60 @@
         }
     });
 
-    //Toggle Edit particle properties menu
+    //Toggle Edit particle properties menu and editing particle properties
     document.getElementById("edit-particle-properties").addEventListener("click", function() {
         const editParticlePropertiesContainer = document.getElementById("edit-particle-properties-container");
         editParticlePropertiesContainer.classList.toggle("show");
+        
+        // Populate particle selector
+        const particleSelector = document.getElementById("particle-select");
+        particleSelector.innerHTML = "<option value=''>Select a particle</option>"; // Clear existing options
+        particles.forEach(particle => {
+            const option = document.createElement("option");
+            option.value = particle.name;
+            option.textContent = particle.name;
+            particleSelector.appendChild(option);
+        });
+
+        // Populate property selector
+        const propertySelector = document.getElementById("property-select");
+        propertySelector.innerHTML = "<option value=''>Select a property</option>"; // Clear existing options
+        properties.forEach(property => {
+            const option = document.createElement("option");
+            option.value = property;
+            option.textContent = property;
+            propertySelector.appendChild(option);
+        });
+
+        // Show property value when selections change
+        particleSelector.addEventListener("change", showCurrentValue);
+        propertySelector.addEventListener("change", showCurrentValue);
+
+        function showCurrentValue() {
+            const selectedParticle = particleSelector.value;
+            const selectedProperty = propertySelector.value;
+            const propertyValueInput = document.getElementById("property-value");
+            
+            if (selectedParticle && selectedProperty) {
+                const propertyKey = `${selectedParticle},${selectedProperty}`;
+                propertyValueInput.value = particle_properties[propertyKey] || 0;
+            } else {
+                propertyValueInput.value = "";
+            }
+        }
+
+        // Initial display
+        showCurrentValue();
+
+
+        //Update property value
+        document.getElementById("update-particle-property").addEventListener("click", function() {
+            const selectedParticle = particleSelector.value;
+            const selectedProperty = propertySelector.value;
+            const propertyValue = parseFloat(document.getElementById("property-value").value);
+            const propertyKey = `${selectedParticle},${selectedProperty}`;
+            particle_properties[propertyKey] = propertyValue;            
+        });
     });
 
     //Select active particle
