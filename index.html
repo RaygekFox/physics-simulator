@@ -123,6 +123,13 @@
         background-color: #f82828;
     }
 
+    .edit-force-select-cell {
+        width: 80px;
+        height: 40px;
+        display: flex;
+        flex-direction: column;
+    }
+
     canvas {
         border: 4px solid black;
         border-radius: 10px;
@@ -139,7 +146,7 @@
         <button id="add-particles">Add particles</button>
         <button id="edit-particles">Edit particles</button>
         <button id="edit-particle-properties">Edit properties</button>
-        <button id="edit-particle-forces">Edit forces</button>
+        <button id="edit-forces">Edit forces</button>
     </div>
 
     <div class="menu-container particles-container" id="particles-container"></div>
@@ -163,6 +170,22 @@
         <input type="number" id="property-value" placeholder="Enter value">
         <button id="update-particle-property">Update Property</button>
     </div>
+
+    <div class="menu-container edit-particles-container" id="edit-forces-container">
+        <select id="property-select-force-edit">
+            <option value="">Select a property</option>
+        </select>
+        <select id="force-select">
+            <option value="">Select a force</option>
+        </select>
+        <p>F(r=0)</p>
+        <input type="number" id="strength-value" placeholder="Enter value">
+        <p>r(F=0)</p>
+        <input type="number" id="range-value" placeholder="Enter value">
+        <button id="update-property-force">Update Force</button>
+    </div>
+
+
 
     <canvas id="simulation-canvas" width="600" height="600"></canvas>
 
@@ -531,6 +554,88 @@
             particle_properties[propertyKey] = propertyValue;            
         });
     });
+
+
+
+
+    document.getElementById("edit-forces").addEventListener("click", function() {
+
+        const editForcesContainer = document.getElementById("edit-forces-container");
+        editForcesContainer.classList.toggle("show");
+
+
+        // Populate property selector
+        const propertySelector = document.getElementById("property-select-force-edit");
+        propertySelector.innerHTML = "<option value=''>Select a property</option>"; // Clear existing options
+        properties.forEach(property => {
+            const option = document.createElement("option");
+            option.value = property;
+            option.textContent = property;
+            propertySelector.appendChild(option);
+        });
+
+        // Populate force selector
+        const forceSelector = document.getElementById("force-select");
+        forceSelector.innerHTML = "<option value=''>Select a force</option>"; // Clear existing options
+        forces.forEach(force => {
+            const option = document.createElement("option");
+            option.value = force;
+            option.textContent = force;
+            forceSelector.appendChild(option);
+        });
+
+
+
+        // Show property value when selections change
+        forceSelector.addEventListener("change", showCurrentValue);
+        propertySelector.addEventListener("change", showCurrentValue);
+
+        function showCurrentValue() {
+            const selectedProperty = propertySelector.value;
+            const selectedForce = forceSelector.value;
+            const strengthValueInput = document.getElementById("strength-value");
+            const rangeValueInput = document.getElementById("range-value");
+            
+            if (selectedForce && selectedProperty) {
+                const propertyKey = `${selectedProperty},${selectedForce}`;
+                strengthValueInput.value = property_forces[propertyKey][0] || 0;
+                rangeValueInput.value = property_forces[propertyKey][1] || 0;
+            } else {
+                strengthValueInput.value = "";
+                rangeValueInput.value = "";
+            }
+        }
+
+        // Initial display
+        showCurrentValue();
+
+
+        //Update property value
+        document.getElementById("update-property-force").addEventListener("click", function() {
+            const selectedForce = forceSelector.value;
+            const selectedProperty = propertySelector.value;
+            const strengthValue = parseFloat(document.getElementById("strength-value").value);
+            const rangeValue = parseFloat(document.getElementById("range-value").value);
+            const propertyKey = `${selectedProperty},${selectedForce}`;
+            property_forces[propertyKey] = [strengthValue, rangeValue];            
+        });
+
+        // for (const prop of properties) {
+        //     const rowDiv = document.createElement("div")
+        //     const propName = document.createElement("p")
+        //     propName.innerText = prop
+        //     rowDiv.appendChild(propName)
+        //     for (const force of forces) {
+        //         const editDiv = document.createElement("div")
+        //         editDiv.classList.add("edit-force-select-cell")
+        //         editDiv.innerHTML = '<p>F(r=0)</p><input type="number" id="strength-`${prop}`-`${force}`"><p>r(F=0)</p><input type="number" id="range-`${prop}`-`${force}`">'
+        //         rowDiv.appendChild(editDiv)
+        //     }
+        //     editForcesContainer.appendChild(rowDiv)
+        // }
+
+
+    })
 
     //Select active particle
     document.getElementById("particles-container").addEventListener("click", function(event) {
