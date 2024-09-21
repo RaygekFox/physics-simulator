@@ -191,6 +191,12 @@
         </select>
         <input type="number" id="property-value" placeholder="Enter value">
         <button id="update-particle-property">Update Property</button>
+        <button id="new-property">New Property</button>
+    </div>
+
+    <div class="menu-container edit-particles-container" id="new-property-container">
+        <input type="text" id="new-property-name" placeholder="New property name">
+        <button id="create-new-property">Create New Property</button>
     </div>
 
     <div class="menu-container edit-particles-container" id="edit-forces-container">
@@ -574,6 +580,25 @@
             const propertyValue = parseFloat(document.getElementById("property-value").value);
             const propertyKey = `${selectedParticle},${selectedProperty}`;
             particle_properties[propertyKey] = propertyValue;            
+        });
+
+        //New property
+        document.getElementById("new-property").addEventListener("click", function() {
+            const newPropertyContainer = document.getElementById("new-property-container");
+            newPropertyContainer.classList.toggle("show");
+
+            document.getElementById("create-new-property").addEventListener("click", function() {
+                const newPropertyName = document.getElementById("new-property-name").value;
+                if (newPropertyName && !properties.includes(newPropertyName)) {
+                    properties.push(newPropertyName);
+                    for (const particle of particles) {
+                        particle_properties[`${particle.name},${newPropertyName}`] = 0.0;
+                    }
+                } else if (properties.includes(newPropertyName)) {
+                    alert("A property with this name already exists or the field is empty.");
+                }
+                newPropertyContainer.classList.remove("show");
+            });
         });
     });
 
