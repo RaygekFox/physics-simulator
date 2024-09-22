@@ -212,13 +212,21 @@
 
 <body>
     <div class="menu-container">
-        <button id="add-particles">Add particles</button>
+        <button id="add-particles">Spawn particles</button>
+        <button id="new-button">New...</button>
         <button id="edit-particles">Edit particles</button>
         <button id="edit-particle-properties">Edit properties</button>
         <button id="edit-forces">Edit forces</button>
     </div>
 
     <div class="menu-container particles-container" id="particles-container"></div>
+
+    <div class="menu-container edit-particles-container" id="new-entity-container">
+        <button id="new-particle-button">Create new particle</button>
+        <button id="new-property-button">Create new property</button>
+        <button id="new-force-button">Create new force</button>
+    </div>
+
     <div class="menu-container edit-particles-container" id="edit-particles-container"></div>
 
     <div class="menu-container edit-particles-container" id="new-particle-container">
@@ -483,6 +491,7 @@
 
     //Toggle Add particles menu
     document.getElementById("add-particles").addEventListener("click", function() {
+
         const particlesContainer = document.getElementById("particles-container");
         particlesContainer.classList.toggle("show");
         particle_can_be_added = !particle_can_be_added;
@@ -503,6 +512,12 @@
         }
     });
 
+    //Toggle New entity menu
+    document.getElementById("new-button").addEventListener("click", function() {
+        const newEntityContainer = document.getElementById("new-entity-container");
+        newEntityContainer.classList.toggle("show");
+    });
+
     //Toggle Edit particles menu
     document.getElementById("edit-particles").addEventListener("click", function() {
         const editParticlesContainer = document.getElementById("edit-particles-container");
@@ -519,20 +534,21 @@
             div.appendChild(document.createTextNode(particle.name + ": m= " + particle.mass));
             editParticlesContainer.appendChild(div);
         }
-        new_particle_button = document.createElement("button");
-        new_particle_button.id = "new-particle-button";
-        new_particle_button.textContent = "New particle";
-        editParticlesContainer.appendChild(new_particle_button);
-
-        const new_particle_container = document.getElementById("new-particle-container");
-        new_particle_container.classList.remove("show");
     });
 
-    //Toggle New particle menu
-    document.getElementById("edit-particles-container").addEventListener("click", function(event) {
+    //Toggle New entity menu
+    document.getElementById("new-entity-container").addEventListener("click", function(event) {
         if (event.target.id === "new-particle-button") {
             const newParticleContainer = document.getElementById("new-particle-container");
             newParticleContainer.classList.toggle("show");
+        }
+        else if (event.target.id === "new-property-button") {
+            const newPropertyContainer = document.getElementById("new-property-container");
+            newPropertyContainer.classList.toggle("show");
+        }
+        else if (event.target.id === "new-force-button") {
+            const newForceContainer = document.getElementById("new-force-container");
+            newForceContainer.classList.toggle("show");
         }
     });
 
@@ -565,15 +581,28 @@
                 
                 // Hide the new particle container
                 document.getElementById("new-particle-container").classList.remove("show");
-                
-                // Refresh the edit particles menu to show the new particle
-                document.getElementById("edit-particles").click();
+
             } else {
                 alert("Please fill all fields with valid values.");
             }
         }
     });
 
+    document.getElementById("new-property-container").addEventListener("click", function(event) {
+        if (event.target && event.target.id === 'create-new-property') {
+                const newPropertyName = document.getElementById("new-property-name").value;
+                if (newPropertyName && !properties.includes(newPropertyName)) {
+                    properties.push(newPropertyName);
+                    for (const particle of particles) {
+                        particle_properties[`${particle.name},${newPropertyName}`] = 0.0;
+                    }
+                } else {
+                    alert("A property with this name already exists or the field is empty.");
+                }
+                document.getElementById("new-property-container").classList.remove("show");
+            };
+    });
+    
     //Toggle Edit particle properties menu and editing particle properties
     document.getElementById("edit-particle-properties").addEventListener("click", function() {
         const editParticlePropertiesContainer = document.getElementById("edit-particle-properties-container");
@@ -631,24 +660,11 @@
 
         //New property
         document.getElementById("new-property").addEventListener("click", function() {
-            const newPropertyContainer = document.getElementById("new-property-container");
-            newPropertyContainer.classList.toggle("show");
 
-            document.getElementById("create-new-property").addEventListener("click", function() {
-                const newPropertyName = document.getElementById("new-property-name").value;
-                if (newPropertyName && !properties.includes(newPropertyName)) {
-                    properties.push(newPropertyName);
-                    for (const particle of particles) {
-                        particle_properties[`${particle.name},${newPropertyName}`] = 0.0;
-                    }
-                } else if (properties.includes(newPropertyName)) {
-                    alert("A property with this name already exists or the field is empty.");
-                }
-                newPropertyContainer.classList.remove("show");
-            });
+
+
         });
     });
-
 
     // Edit forces
     document.getElementById("edit-forces").addEventListener("click", function() {
@@ -730,12 +746,6 @@
             }
         }
     });
-
-
-
-
-
-    
 
     //Select active particle
     document.getElementById("particles-container").addEventListener("click", function(event) {
