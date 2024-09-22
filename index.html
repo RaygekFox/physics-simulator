@@ -237,6 +237,16 @@
         <button id="create-new-particle">Create new particle</button>
     </div>
 
+    <div class="menu-container edit-particles-container" id="new-property-container">
+        <input type="text" id="new-property-name" placeholder="New property name">
+        <button id="create-new-property">Create New Property</button>
+    </div>
+
+    <div class="menu-container edit-particles-container" id="new-force-container">
+        <input type="text" id="new-force-name" placeholder="New force name">
+        <button id="create-new-force">Create New Force</button>
+    </div>
+
     <div class="menu-container edit-particles-container" id="edit-particle-properties-container">
         <select id="particle-select">
             <option value="">Select a particle</option>
@@ -247,11 +257,6 @@
         <input type="number" id="property-value" placeholder="Enter value">
         <button id="update-particle-property">Update Property</button>
         <button id="new-property">New Property</button>
-    </div>
-
-    <div class="menu-container edit-particles-container" id="new-property-container">
-        <input type="text" id="new-property-name" placeholder="New property name">
-        <button id="create-new-property">Create New Property</button>
     </div>
 
     <div class="menu-container edit-particles-container" id="edit-forces-container">
@@ -588,6 +593,7 @@
         }
     });
 
+    //Adding new property through menu
     document.getElementById("new-property-container").addEventListener("click", function(event) {
         if (event.target && event.target.id === 'create-new-property') {
                 const newPropertyName = document.getElementById("new-property-name").value;
@@ -602,6 +608,23 @@
                 document.getElementById("new-property-container").classList.remove("show");
             };
     });
+
+    //Adding new force through menu
+    document.getElementById("new-force-container").addEventListener("click", function(event) {
+        if (event.target && event.target.id === 'create-new-force') {
+            const newForceName = document.getElementById("new-force-name").value;
+            if (newForceName && !forces.includes(newForceName)) {
+                forces.push(newForceName);
+                for (const prop of properties) {
+                    property_forces[`${prop},${newForceName}`] = [0, 0];
+                }
+            } else {
+                alert("A force with this name already exists or the field is empty.");
+            }
+            document.getElementById("new-force-container").classList.remove("show");
+        }
+    });
+    
     
     //Toggle Edit particle properties menu and editing particle properties
     document.getElementById("edit-particle-properties").addEventListener("click", function() {
