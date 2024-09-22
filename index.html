@@ -351,6 +351,7 @@
 
     
     const dt = 0.1
+    const active_dt = 0.1
 
     let properties = ["mass", "charge"];
     let forces = ["gravity", "electric"];
@@ -590,7 +591,11 @@
             } else {
                 alert("Please fill all fields with valid values.");
             }
+
+            document.getElementById("new-particle-container").classList.remove("show");
         }
+
+        
     });
 
     //Adding new property through menu
@@ -625,68 +630,129 @@
         }
     });
     
-    
-    //Toggle Edit particle properties menu and editing particle properties
+    //Edit Properties
     document.getElementById("edit-particle-properties").addEventListener("click", function() {
         const editParticlePropertiesContainer = document.getElementById("edit-particle-properties-container");
         editParticlePropertiesContainer.classList.toggle("show");
-        
-        // Populate particle selector
-        const particleSelector = document.getElementById("particle-select");
-        particleSelector.innerHTML = "<option value=''>Select a particle</option>"; // Clear existing options
-        particles.forEach(particle => {
-            const option = document.createElement("option");
-            option.value = particle.name;
-            option.textContent = particle.name;
-            particleSelector.appendChild(option);
-        });
+        editParticlePropertiesContainer.innerHTML = ''
 
-        // Populate property selector
-        const propertySelector = document.getElementById("property-select");
-        propertySelector.innerHTML = "<option value=''>Select a property</option>"; // Clear existing options
-        properties.forEach(property => {
-            const option = document.createElement("option");
-            option.value = property;
-            option.textContent = property;
-            propertySelector.appendChild(option);
-        });
+        // Create table
+        const table = document.createElement("table");
+        table.style.borderCollapse = "collapse";
 
-        // Show property value when selections change
-        particleSelector.addEventListener("change", showCurrentValue);
-        propertySelector.addEventListener("change", showCurrentValue);
+        // Create header row
+        const headerRow = document.createElement("tr");
+        headerRow.innerHTML = "<th>Particle \\ Property</th>";
+        for (const prop of properties) {
+            headerRow.innerHTML += `<th>${prop}</th>`;
+        }
+        table.appendChild(headerRow);
 
-        function showCurrentValue() {
-            const selectedParticle = particleSelector.value;
-            const selectedProperty = propertySelector.value;
-            const propertyValueInput = document.getElementById("property-value");
+        // Create rows for each force
+        for (const particle of particles) {
+            const row = document.createElement("tr");
+            row.innerHTML = `<td><strong>${particle.name}</strong></td>`;
             
-            if (selectedParticle && selectedProperty) {
-                const propertyKey = `${selectedParticle},${selectedProperty}`;
-                propertyValueInput.value = particle_properties[propertyKey] || 0;
-            } else {
-                propertyValueInput.value = "";
+            for (const prop of properties) {
+                const cell = document.createElement("td");
+                const propertyKey = `${particle.name},${prop}`;
+                const value = particle_properties[propertyKey] || 0;
+                
+                const innerDiv = document.createElement("div");
+                innerDiv.className = "simple-ver-div";
+
+                const input1 = document.createElement("input");
+                input1.type = "number";
+                input1.id = `value-${particle.name}-${prop}`;
+                input1.value = value;
+                
+
+                innerDiv.appendChild(input1);
+                cell.appendChild(innerDiv);
+                row.appendChild(cell);
+            }
+            table.appendChild(row);
+        }
+
+        editParticlePropertiesContainer.appendChild(table);
+
+        // Add update button
+        const updateButton = document.createElement("button");
+        updateButton.textContent = "Update Properties";
+        updateButton.addEventListener("click", updateProperties);
+        editParticlePropertiesContainer.appendChild(updateButton);
+
+
+        
+    
+        function updateProperties() {
+        for (const particle of particles) {
+            for (const prop of properties) {
+                const valueInput = document.getElementById(`value-${particle.name}-${prop}`);
+                const propertyKey = `${particle.name},${prop}`;
+                particle_properties[propertyKey] = valueInput.value;
+            }
             }
         }
 
-        // Initial display
-        showCurrentValue();
+
+        
+        // // Populate particle selector
+        // const particleSelector = document.getElementById("particle-select");
+        // particleSelector.innerHTML = "<option value=''>Select a particle</option>"; // Clear existing options
+        // particles.forEach(particle => {
+        //     const option = document.createElement("option");
+        //     option.value = particle.name;
+        //     option.textContent = particle.name;
+        //     particleSelector.appendChild(option);
+        // });
+
+        // // Populate property selector
+        // const propertySelector = document.getElementById("property-select");
+        // propertySelector.innerHTML = "<option value=''>Select a property</option>"; // Clear existing options
+        // properties.forEach(property => {
+        //     const option = document.createElement("option");
+        //     option.value = property;
+        //     option.textContent = property;
+        //     propertySelector.appendChild(option);
+        // });
+
+        // // Show property value when selections change
+        // particleSelector.addEventListener("change", showCurrentValue);
+        // propertySelector.addEventListener("change", showCurrentValue);
+
+        // function showCurrentValue() {
+        //     const selectedParticle = particleSelector.value;
+        //     const selectedProperty = propertySelector.value;
+        //     const propertyValueInput = document.getElementById("property-value");
+            
+        //     if (selectedParticle && selectedProperty) {
+        //         const propertyKey = `${selectedParticle},${selectedProperty}`;
+        //         propertyValueInput.value = particle_properties[propertyKey] || 0;
+        //     } else {
+        //         propertyValueInput.value = "";
+        //     }
+        // }
+
+        // // Initial display
+        // showCurrentValue();
 
 
-        //Update property value
-        document.getElementById("update-particle-property").addEventListener("click", function() {
-            const selectedParticle = particleSelector.value;
-            const selectedProperty = propertySelector.value;
-            const propertyValue = parseFloat(document.getElementById("property-value").value);
-            const propertyKey = `${selectedParticle},${selectedProperty}`;
-            particle_properties[propertyKey] = propertyValue;            
-        });
+        // //Update property value
+        // document.getElementById("update-particle-property").addEventListener("click", function() {
+        //     const selectedParticle = particleSelector.value;
+        //     const selectedProperty = propertySelector.value;
+        //     const propertyValue = parseFloat(document.getElementById("property-value").value);
+        //     const propertyKey = `${selectedParticle},${selectedProperty}`;
+        //     particle_properties[propertyKey] = propertyValue;            
+        // });
 
-        //New property
-        document.getElementById("new-property").addEventListener("click", function() {
+        // //New property
+        // document.getElementById("new-property").addEventListener("click", function() {
 
 
 
-        });
+        // });
     });
 
     // Edit forces
