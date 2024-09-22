@@ -54,6 +54,22 @@
         transition: border-color 0.3s, box-shadow 0.3s;
     }
 
+    .simple-hor-div {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .simple-ver-div {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+    }
+
     .menu-container {
         display: flex;
         flex-direction: row;
@@ -137,6 +153,22 @@
         border-radius: 10px;
     }
 
+    .edit-particles-container div.simple-ver-div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    }
+
+    .edit-particles-container div.simple-hor-div {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
     .edit-particles-container .particle-icon {
         width: 10px;
         height: 10px;
@@ -157,6 +189,21 @@
         border-radius: 10px;
         width: 600px;
         height: 600px;
+    }
+
+    table {
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        border: 3px solid black;
+        border-radius: 10px;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    #edit-forces-container input[type="number"] {
+        width: 60px;
     }
 
 
@@ -603,86 +650,92 @@
     });
 
 
-
-
+    // Edit forces
     document.getElementById("edit-forces").addEventListener("click", function() {
-
         const editForcesContainer = document.getElementById("edit-forces-container");
         editForcesContainer.classList.toggle("show");
+        editForcesContainer.innerHTML = ''; // Clear existing content
 
+        // Create table
+        const table = document.createElement("table");
+        table.style.borderCollapse = "collapse";
 
-        // Populate property selector
-        const propertySelector = document.getElementById("property-select-force-edit");
-        propertySelector.innerHTML = "<option value=''>Select a property</option>"; // Clear existing options
-        properties.forEach(property => {
-            const option = document.createElement("option");
-            option.value = property;
-            option.textContent = property;
-            propertySelector.appendChild(option);
-        });
+        // Create header row
+        const headerRow = document.createElement("tr");
+        headerRow.innerHTML = "<th>Force \\ Property</th>";
+        for (const prop of properties) {
+            headerRow.innerHTML += `<th>${prop}</th>`;
+        }
+        table.appendChild(headerRow);
 
-        // Populate force selector
-        const forceSelector = document.getElementById("force-select");
-        forceSelector.innerHTML = "<option value=''>Select a force</option>"; // Clear existing options
-        forces.forEach(force => {
-            const option = document.createElement("option");
-            option.value = force;
-            option.textContent = force;
-            forceSelector.appendChild(option);
-        });
-
-
-
-        // Show property value when selections change
-        forceSelector.addEventListener("change", showCurrentValue);
-        propertySelector.addEventListener("change", showCurrentValue);
-
-        function showCurrentValue() {
-            const selectedProperty = propertySelector.value;
-            const selectedForce = forceSelector.value;
-            const strengthValueInput = document.getElementById("strength-value");
-            const rangeValueInput = document.getElementById("range-value");
+        // Create rows for each force
+        for (const force of forces) {
+            const row = document.createElement("tr");
+            row.innerHTML = `<td><strong>${force}</strong></td>`;
             
-            if (selectedForce && selectedProperty) {
-                const propertyKey = `${selectedProperty},${selectedForce}`;
-                strengthValueInput.value = property_forces[propertyKey][0] || 0;
-                rangeValueInput.value = property_forces[propertyKey][1] || 0;
-            } else {
-                strengthValueInput.value = "";
-                rangeValueInput.value = "";
+            for (const prop of properties) {
+                const cell = document.createElement("td");
+                const propertyKey = `${prop},${force}`;
+                const [strength, range] = property_forces[propertyKey] || [0, 0];
+                
+                const innerDiv = document.createElement("div");
+                innerDiv.className = "simple-ver-div";
+
+                const label1 = document.createElement("label");
+                label1.textContent = "F(r=0): ";
+                const input1 = document.createElement("input");
+                input1.type = "number";
+                input1.id = `strength-${prop}-${force}`;
+                input1.value = strength;
+                label1.appendChild(input1);
+
+                const label2 = document.createElement("label");
+                label2.textContent = "r(F=0): ";
+                const input2 = document.createElement("input");
+                input2.type = "number";
+                input2.id = `range-${prop}-${force}`;
+                input2.value = range;
+                label2.appendChild(input2);
+
+                innerDiv.appendChild(label1);
+                innerDiv.appendChild(label2);
+                cell.appendChild(innerDiv);
+                row.appendChild(cell);
             }
+            table.appendChild(row);
         }
 
-        // Initial display
-        showCurrentValue();
+        editForcesContainer.appendChild(table);
+
+        // Add update button
+        const updateButton = document.createElement("button");
+        updateButton.textContent = "Update Forces";
+        updateButton.addEventListener("click", updateForces);
+        editForcesContainer.appendChild(updateButton);
 
 
-        //Update property value
-        document.getElementById("update-property-force").addEventListener("click", function() {
-            const selectedForce = forceSelector.value;
-            const selectedProperty = propertySelector.value;
-            const strengthValue = parseFloat(document.getElementById("strength-value").value);
-            const rangeValue = parseFloat(document.getElementById("range-value").value);
-            const propertyKey = `${selectedProperty},${selectedForce}`;
-            property_forces[propertyKey] = [strengthValue, rangeValue];            
-        });
-
-        // for (const prop of properties) {
-        //     const rowDiv = document.createElement("div")
-        //     const propName = document.createElement("p")
-        //     propName.innerText = prop
-        //     rowDiv.appendChild(propName)
-        //     for (const force of forces) {
-        //         const editDiv = document.createElement("div")
-        //         editDiv.classList.add("edit-force-select-cell")
-        //         editDiv.innerHTML = '<p>F(r=0)</p><input type="number" id="strength-`${prop}`-`${force}`"><p>r(F=0)</p><input type="number" id="range-`${prop}`-`${force}`">'
-        //         rowDiv.appendChild(editDiv)
-        //     }
-        //     editForcesContainer.appendChild(rowDiv)
-        // }
+        
+    
+        function updateForces() {
+        for (const force of forces) {
+            for (const prop of properties) {
+                const strengthInput = document.getElementById(`strength-${prop}-${force}`);
+                const rangeInput = document.getElementById(`range-${prop}-${force}`);
+                const propertyKey = `${prop},${force}`;
+                property_forces[propertyKey] = [
+                    parseFloat(strengthInput.value) || 0,
+                    parseFloat(rangeInput.value) || 0
+                ];
+            }
+            }
+        }
+    });
 
 
-    })
+
+
+
+    
 
     //Select active particle
     document.getElementById("particles-container").addEventListener("click", function(event) {
