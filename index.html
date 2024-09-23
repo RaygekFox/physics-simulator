@@ -477,7 +477,14 @@
         update_positions()
     }
 
-
+    function remove_far_particles() {
+        canvas_particles = canvas_particles.filter(p => {
+            return p.worldX <= canvas.width + 100 && 
+                   p.worldX >= -100 && 
+                   p.worldY <= canvas.height + 100 && 
+                   p.worldY >= -100;
+        });
+    }
 
 
 
@@ -487,6 +494,7 @@
     window.onload = function() {
         setInterval(update_particles, 50)
         setInterval(draw_canvas, 50)
+        setInterval(remove_far_particles, 1000)
     }
 
 
