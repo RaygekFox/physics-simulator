@@ -230,10 +230,10 @@
     <div class="menu-container edit-particles-container" id="edit-particles-container"></div>
 
     <div class="menu-container edit-particles-container" id="new-particle-container">
-        <input type="text" id="new-particle-name" placeholder="Particle name">
-        <input type="number" id="new-particle-mass" placeholder="Particle mass">
-        <input type="color" id="new-particle-color" placeholder="Particle color">
-        <input type="number" id="new-particle-radius" placeholder="Particle radius">
+        <input type="text" id="new-particle-name" placeholder="Name">
+        <input type="number" id="new-particle-mass" placeholder="Inertial mass">
+        <input type="color" id="new-particle-color" placeholder="Color">
+        <input type="number" id="new-particle-radius" placeholder="Radius">
         <button id="create-new-particle">Create new particle</button>
     </div>
 
@@ -357,7 +357,7 @@
     let dt = 0.1
     let running_dt = 0.1
 
-    let properties = ["mass", "charge"];
+    let properties = ["gmass", "charge"];
     let forces = ["gravity", "electric"];
     let particles = [
         {name: "proton", 
