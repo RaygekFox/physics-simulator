@@ -279,6 +279,7 @@
 
     <div class="menu-container">
         <button id="play-pause">Play/Pause</button>
+        <button id="despawn-all-particles">Despawn all particles</button>
     </div>
 
 
@@ -904,6 +905,10 @@ document.getElementById("play-pause").addEventListener("click", function() {
     else {
         dt = running_dt
     }
+})
+
+document.getElementById("despawn-all-particles").addEventListener("click", function() {
+    canvas_particles = []
 })
 
 
