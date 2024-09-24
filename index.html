@@ -209,8 +209,33 @@
         width: 60px;
     }
 
+    .scrollable-table-container {
+        max-width: 80vw;
+        max-height: 60vh;
+        overflow: auto;
+        border: 2px solid #498298;
+        border-radius: 10px;
+    }
 
+    .scrollable-table-container table {
+        border-collapse: separate;
+        border-spacing: 0;
+    }
 
+    .scrollable-table-container th,
+    .scrollable-table-container td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        background-color: #fff;
+        white-space: nowrap;  
+    }
+
+    .scrollable-table-container th {
+        position: sticky;
+        top: 0;
+        background-color: #f2f2f2;
+        z-index: 10;
+    }
 </style>
 
 <body>
@@ -687,7 +712,11 @@
     document.getElementById("edit-particle-properties").addEventListener("click", function() {
         const editParticlePropertiesContainer = document.getElementById("edit-particle-properties-container");
         editParticlePropertiesContainer.classList.toggle("show");
-        editParticlePropertiesContainer.innerHTML = ''
+        editParticlePropertiesContainer.innerHTML = '';
+
+        // Create scrollable container
+        const scrollableContainer = document.createElement("div");
+        scrollableContainer.className = "scrollable-table-container";
 
         // Create table
         const table = document.createElement("table");
@@ -727,7 +756,8 @@
             table.appendChild(row);
         }
 
-        editParticlePropertiesContainer.appendChild(table);
+        scrollableContainer.appendChild(table);
+        editParticlePropertiesContainer.appendChild(scrollableContainer);
 
         // Add update button
         const updateButton = document.createElement("button");
@@ -812,7 +842,11 @@
     document.getElementById("edit-forces").addEventListener("click", function() {
         const editForcesContainer = document.getElementById("edit-forces-container");
         editForcesContainer.classList.toggle("show");
-        editForcesContainer.innerHTML = ''; // Clear existing content
+        editForcesContainer.innerHTML = '';
+
+        // Create scrollable container
+        const scrollableContainer = document.createElement("div");
+        scrollableContainer.className = "scrollable-table-container";
 
         // Create table
         const table = document.createElement("table");
@@ -863,7 +897,8 @@
             table.appendChild(row);
         }
 
-        editForcesContainer.appendChild(table);
+        scrollableContainer.appendChild(table);
+        editForcesContainer.appendChild(scrollableContainer);
 
         // Add update button
         const updateButton = document.createElement("button");
