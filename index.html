@@ -11,7 +11,6 @@
     body {
         margin: 0;
         padding: 0;
-        overflow: hidden;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -132,10 +131,12 @@
         align-items: center;
         justify-content: center;
         gap: 10px;
+        /*
         position: fixed;
         top: 300px;
         left: 50%;
         transform: translateX(-50%);
+        */
     }
 
     .edit-particles-container.show {
@@ -209,12 +210,25 @@
         width: 60px;
     }
 
-    .scrollable-table-container {
-        max-width: 80vw;
+    .container-for-table {
+        display: none;
+        width: 80vw;
         max-height: 60vh;
-        overflow: auto;
         border: 2px solid #498298;
         border-radius: 10px;
+    }
+
+    .container-for-table.show {
+        display: flex;
+    }
+
+    .scrollable-table-container {
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
     }
 
     .scrollable-table-container table {
@@ -275,7 +289,7 @@
         <button id="create-new-force">Create New Force</button>
     </div>
 
-    <div class="menu-container edit-particles-container" id="edit-particle-properties-container">
+    <div class="menu-container container-for-table" id="edit-particle-properties-container">
         <select id="particle-select">
             <option value="">Select a particle</option>
         </select>
@@ -287,7 +301,7 @@
         <button id="new-property">New Property</button>
     </div>
 
-    <div class="menu-container edit-particles-container" id="edit-forces-container">
+    <div class="menu-container container-for-table" id="edit-forces-container">
         <select id="property-select-force-edit">
             <option value="">Select a property</option>
         </select>
@@ -713,6 +727,7 @@
         const editParticlePropertiesContainer = document.getElementById("edit-particle-properties-container");
         editParticlePropertiesContainer.classList.toggle("show");
         editParticlePropertiesContainer.innerHTML = '';
+
 
         // Create scrollable container
         const scrollableContainer = document.createElement("div");
