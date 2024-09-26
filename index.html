@@ -24,6 +24,14 @@
     button {
         font-family: inherit;
         font-weight: inherit;
+        padding: 10px 20px;
+        border-radius: 5px;
+        border: 2px solid rgb(0, 0, 0);
+        background-color: #ffffff;
+    }
+
+    button:hover {
+        background-color: #faff6f;
     }
 
     input {
@@ -146,6 +154,7 @@
     .edit-particles-container div {
         display: flex;
         flex-direction: row;
+        flex-wrap: wrap;
         align-items: center;
         justify-content: center;
         gap: 10px;
@@ -318,6 +327,21 @@
         <button id="update-property-force">Update Force</button>
     </div>
 
+    <div class="menu-container container-for-table" id="help-container">
+        <p>How to use the simulator:</p>
+        <p>Click "Spawn particles" button and select an active particle. Click on the canvas to spawn it.</p>
+        <p>There are 3 types of entities in the simulator:</p>
+        <p>1. Particles - they move and interact with each other. Each particle has at least one physical property: inertial mass. In real world it's the same as the gravitational mass, but it may not necessaary be in the simulation.</p>
+        <p>2. Properties - like gravitational mass, electric charge, etc. You can create and edit them as you want.</p>
+        <p>3. Forces - they affect particles based on their properties. It's a simplified simulation and all forces decay linearly, not quadratically. In the Edit Forces menu you set two values: force at r=0 and range.</p>
+        <p>F(r=0) is how strong a force is when particles are at the same point. Positive values are attractive forces for particles with same sign properties, negative are repulsive.</p>
+        <p>Particles too far from the canvas are despawned.</p>
+        <p>I'm actively developing the simulation, so if you find any bugs or have a feature request, please contact me through Twitter, or email: antonrzhevskyi@gmail.com</p>
+        <p>I will appreciate your support by sharing the simulator with friends and if you consider buying me a coffee!</p>
+    </div>
+
+
+
 
 
     <canvas id="simulation-canvas" width="600" height="600"></canvas>
@@ -325,6 +349,21 @@
     <div class="menu-container">
         <button id="play-pause">Play/Pause</button>
         <button id="despawn-all-particles">Despawn all particles</button>
+        <button id="help-button">Help</button>
+    </div>
+
+    <p>Made by Toha</p>
+
+    <div class="simple-hor-div">
+    <a href="https://twitter.com/imthetoha" target="_blank">
+        <button>Connect on Twitter</button>
+    </a>
+    <a href="https://buymeacoffee.com/imthetoha" target="_blank">
+        <button>Buy me a coffee</button>
+    </a>
+    <a href="https://toha.world/" target="_blank">
+        <button>Other projects</button>
+    </a>
     </div>
 
 
@@ -554,6 +593,16 @@
     //***MENU***
 
     //*** ***UPPER MENU*** ***
+
+    // Hide edit-particle-container and container-for-table elements when clicking empty space
+    document.addEventListener('click', function(event) {
+        if (event.target === document.body || event.target === document.documentElement) {
+            const containers = document.querySelectorAll('.edit-particles-container, .container-for-table');
+            containers.forEach(container => {
+                container.classList.remove('show');
+            });
+        }
+    });
 
     //Toggle Add particles menu
     document.getElementById("add-particles").addEventListener("click", function() {
@@ -956,6 +1005,13 @@
             console.log("active particle: ", active_particle);
         }
     });
+
+    //Get help
+    document.getElementById("help-button").addEventListener("click", function() {
+        const helpContainer = document.getElementById("help-container");
+        helpContainer.classList.toggle("show");
+    });
+
 
 
 
