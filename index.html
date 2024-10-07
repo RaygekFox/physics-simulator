@@ -332,8 +332,9 @@
         <p>There are 3 types of entities in the simulator:</p>
         <p>1. Particles - they move and interact with each other. Each particle has at least one physical property: inertial mass. In real world it's the same as the gravitational mass, but it may not necessaary be in the simulation.</p>
         <p>2. Properties - like gravitational mass, electric charge, etc. You can create and edit them as you want.</p>
-        <p>3. Forces - they affect particles based on their properties. In the Edit Forces menu you set two values: force at r=1 and range, further away particles won't feel the force(they are usually very small on big distance anyway).</p>
+        <p>3. Forces - they affect particles based on their properties. In the Edit Forces menu you set two values: force at r=1 and range coefficient.</p>
         <p>F(r=1) is how strong a force is when particles are at 1 pixel apart(*). Positive values are attractive forces for particles with same sign properties, negative are repulsive.</p>
+        <p>Range coefficient affects how fast force decreases with distance. If it's set to 0, then force is constant. If this coef is k, then force is proportional to 1 / ((r-1)/k + 1)^2</p>
         <p>(*)In fact, when particles overlap(distance < radius1+radius2), no force from their interaction is applied. This is done to avoid weirdly strong interactions on small distances</p>
         <p>Particles too far from the canvas are despawned.</p>
         <p>I'm actively developing the simulation, so if you find any bugs or have a feature request, please contact me through Twitter, or email: antonrzhevskyi@gmail.com</p>
@@ -480,7 +481,7 @@
         }
     }
 
-    property_forces["charge,electric"] = [-1000, 200]
+    property_forces["charge,electric"] = [-1000, 10]
 
 
 
@@ -506,27 +507,33 @@
         let total_acc = [0,0]
         const unit_vector = unit_vector_from_to(p1, p2) 
         const r = distance_between_particles(p1, p2)
-        const rToNegTwo = r === 0 ? 0 : Math.pow(r, -2) //if r is 0, then rToNegTwo is 0, otherwise it's r to the power of -2
+        //const rToNegTwo = r === 0 ? 0 : Math.pow(r, -2) //if r is 0, then rToNegTwo is 0, otherwise it's r to the power of -2
         for (force of forces) {
             for (prop of properties) {
-                const force_value = property_forces[`${prop},${force}`]
-                if (r < force_value[1]) {
-                    let force_magnitude = 0
-                    if (r < (p1.props.radius + p2.props.radius)) {
-                        force_magnitude = 0
+                const force_strength = property_forces[`${prop},${force}`][0]
+                const force_range = property_forces[`${prop},${force}`][1]
+                let force_magnitude = 0
+                if (r < (p1.props.radius + p2.props.radius)) {
+                    force_magnitude = 0
+                }
+                else {
+                    // F is proportional to (1-r)/range, linear
+                    //const force_magnitude = parseFloat((force_value[0] * particle_properties[`${p1.props.name},${prop}`] * particle_properties[`${p2.props.name},${prop}`] * (force_value[1]-r) / force_value[1]).toFixed(4))
+                    // F is proportional to 1/r^2
+                    const numerator = force_strength * particle_properties[`${p1.props.name},${prop}`] * particle_properties[`${p2.props.name},${prop}`]
+                    let denominator = 0
+                    if (force_range === 0) {
+                        denominator = 1 //Making the force constant if range is set to 0.
                     }
                     else {
-                        // F is proportional to (1-r)/range, linear
-                        //const force_magnitude = parseFloat((force_value[0] * particle_properties[`${p1.props.name},${prop}`] * particle_properties[`${p2.props.name},${prop}`] * (force_value[1]-r) / force_value[1]).toFixed(4))
-                        // F is proportional to 1/r^2
-                        force_magnitude = parseFloat((force_value[0] * particle_properties[`${p1.props.name},${prop}`] * particle_properties[`${p2.props.name},${prop}`] * rToNegTwo).toFixed(4))
+                        denominator = Math.pow((r-1)/force_range + 1, 2) // This is to get the graph of force stretchable around r=1, to control how fast force decreases with distance but keep F(r=1) constant.
                     }
-                    console.log("force_magnitude", force_magnitude)
-                    const acc_magnitude = parseFloat((force_magnitude / p1.props.mass).toFixed(4))
-                    total_acc[0] += parseFloat((unit_vector[0] * acc_magnitude).toFixed(4))
-                    total_acc[1] += parseFloat((unit_vector[1] * acc_magnitude).toFixed(4))
+                    force_magnitude = parseFloat((numerator / denominator).toFixed(4))
                 }
-
+                console.log("force_magnitude", force_magnitude)
+                const acc_magnitude = parseFloat((force_magnitude / p1.props.mass).toFixed(4))
+                total_acc[0] += parseFloat((unit_vector[0] * acc_magnitude).toFixed(4))
+                total_acc[1] += parseFloat((unit_vector[1] * acc_magnitude).toFixed(4))
             }
         }
         console.log("total_acc", total_acc)
